@@ -37,10 +37,8 @@ function saveCart() {
     const transaction = db.transaction(['cart'], 'readwrite');
     const objectStore = transaction.objectStore('cart');
 
-    // Clear existing cart
     objectStore.clear();
 
-    // Add current cart items
     cart.forEach(item => {
         objectStore.add(item);
     });
@@ -76,12 +74,13 @@ function removeFromCart(index) {
     updateCart();
 }
 
+// Add to cart buttons
 document.querySelectorAll('.add-to-cart').forEach(button => {
     button.addEventListener('click', function() {
         const name = this.getAttribute('data-name');
         const price = parseFloat(this.getAttribute('data-price'));
         addToCart(name, price);
-        alert(`تم إضافة ${name} إلى السلة!`);
+        // Removed alert; updates UI silently
     });
 });
 
@@ -93,11 +92,11 @@ function updateCart() {
         cartItems.innerHTML = '';
         cart.forEach((item, index) => {
             const itemDiv = document.createElement('div');
-            itemDiv.innerHTML = `${item.name} - ${item.price} دولار <button class="remove-item" data-index="${index}">إزالة</button>`;
+            itemDiv.innerHTML = `${item.name} - $${item.price.toFixed(2)} <button class="remove-item" data-index="${index}">Remove</button>`;
             cartItems.appendChild(itemDiv);
         });
 
-        // Add event listeners to remove buttons
+        // Add event listeners for remove buttons
         document.querySelectorAll('.remove-item').forEach(button => {
             button.addEventListener('click', function() {
                 const index = parseInt(this.getAttribute('data-index'));
@@ -107,21 +106,25 @@ function updateCart() {
     }
 
     if (cartTotal) {
-        cartTotal.textContent = `المجموع: ${total.toFixed(2)} دولار`;
+        cartTotal.textContent = `Total: $${total.toFixed(2)}`;
     }
 }
 
+// Checkout button
 const checkoutBtn = document.getElementById('checkout');
 if (checkoutBtn) {
     checkoutBtn.addEventListener('click', function() {
         if (cart.length === 0) {
-            alert('السلة فارغة. يرجى إضافة منتجات أولاً.');
+            // alert removed
+            console.log('Cart is empty');
         } else {
-            alert(`إجمالي الفاتورة: ${total.toFixed(2)} دولار\nطريقة الدفع: نقدي أو بطاقة ائتمانية عند الاستلام.`);
+            // alert removed
+            console.log(`Total: $${total.toFixed(2)} | Payment: Cash or card on delivery`);
         }
     });
 }
 
+// Clear cart button
 const clearCartBtn = document.getElementById('clear-cart');
 if (clearCartBtn) {
     clearCartBtn.addEventListener('click', function() {
@@ -131,7 +134,7 @@ if (clearCartBtn) {
             saveCart();
         }
         updateCart();
-        alert('تم مسح السلة.');
+        // alert removed
     });
 }
 
@@ -145,7 +148,6 @@ document.querySelectorAll('.menu-item').forEach(item => {
         const desc = this.querySelector('p').textContent;
         const price = this.querySelector('.price').textContent;
 
-        // Create tooltip
         const tooltip = document.createElement('div');
         tooltip.className = 'tooltip';
         tooltip.innerHTML = `<strong>${name}</strong><br>${desc}<br><em>${price}</em>`;

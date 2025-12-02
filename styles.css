@@ -59,7 +59,7 @@ nav a:hover {
 
 /* Hero Section */
 .hero {
-    background-image: url('https://via.placeholder.com/1200x600/8d6e63/fff?text=Coffee+Shop'); /* Placeholder coffee image */
+    background-image: url('https://via.placeholder.com/1200x600/8d6e63/fff?text=Coffee+Shop');
     background-size: cover;
     background-position: center;
     height: 60vh;
@@ -79,10 +79,12 @@ nav a:hover {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5); /* Overlay for better text readability */
+    background-color: rgba(0, 0, 0, 0.5); /* Overlay for better text visibility */
+    z-index: 0;
 }
 
-.hero h1, .hero p {
+.hero h1,
+.hero p {
     position: relative;
     z-index: 1;
 }
@@ -97,17 +99,22 @@ nav a:hover {
     margin-bottom: 2rem;
 }
 
+/* Button */
 .btn {
-    background-color: #4e342e; /* Dark brown button */
+    background-color: #c57b57; /* lighter coffee color */
     color: #fff;
-    padding: 10px 20px;
+    padding: 12px 25px;
     text-decoration: none;
-    border-radius: 5px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
     transition: background-color 0.3s ease;
+    position: relative;
+    z-index: 1; /* appears above overlay */
 }
 
 .btn:hover {
-    background-color: #3e2723; /* Darker brown on hover */
+    background-color: #a86445;
 }
 
 /* Container */
@@ -136,6 +143,8 @@ h2 {
     padding: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    position: relative;
 }
 
 .menu-item:hover {
@@ -157,37 +166,6 @@ h2 {
     font-weight: bold;
     color: #8d6e63;
     font-size: 1.1rem;
-}
-
-/* Footer */
-footer {
-    background-color: #4e342e;
-    color: #fff;
-    text-align: center;
-    padding: 20px 0;
-    margin-top: 40px;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .hero h1 {
-        font-size: 2rem;
-    }
-
-    nav ul {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .menu-items {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Interactive Elements */
-.menu-item {
-    cursor: pointer;
-    position: relative;
 }
 
 .menu-item:hover .price {
@@ -248,4 +226,29 @@ footer {
 
 #clear-cart:hover {
     background-color: #5a6268;
+}
+
+/* Footer */
+footer {
+    background-color: #4e342e;
+    color: #fff;
+    text-align: center;
+    padding: 20px 0;
+    margin-top: 40px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    nav ul {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .menu-items {
+        grid-template-columns: 1fr;
+    }
 }

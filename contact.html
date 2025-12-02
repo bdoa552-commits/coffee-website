@@ -1,37 +1,160 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مقهى الهيفن - اتصل بنا</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <header>
-        <nav>
-            <div class="logo">مقهى الهيفن</div>
-            <ul>
-                <li><a href="home.html">الرئيسية</a></li>
-                <li><a href="about.html">عننا</a></li>
-                <li><a href="menu.html">القائمة</a></li>
-                <li><a href="contact.html">اتصل بنا</a></li>
-            </ul>
-        </nav>
-    </header>
+// Smooth scrolling for navigation links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+            behavior: 'smooth'
+        });
+    });
+});
 
-    <section id="contact">
-        <div class="container">
-            <h2>اتصل بنا</h2>
-            <p>زورنا في 123 شارع القهوة، مدينة البريو، بريتش كولومبيا 12345</p>
-            <p>اتصل: (123) 456-7890</p>
-            <p>البريد الإلكتروني: info@coffeehaven.com</p>
-        </div>
-    </section>
+// Cart functionality with IndexedDB
+let cart = [];
+let total = 0;
+let db;
 
-    <footer>
-        <p>&copy; 2023 مقهى الهيفن. جميع الحقوق محفوظة.</p>
-    </footer>
+function initDB() {
+    const request = indexedDB.open('CartDB', 1);
 
-    <script src="script.js"></script>
-</body>
-</html>
+    request.onerror = function(event) {
+        console.error('Database error:', event.target.error);
+    };
+
+    request.onsuccess = function(event) {
+        db = event.target.result;
+        loadCart();
+    };
+
+    request.onupgradeneeded = function(event) {
+        db = event.target.result;
+        const objectStore = db.createObjectStore('cart', { keyPath: 'id', autoIncrement: true });
+        objectStore.createIndex('name', 'name', { unique: false });
+        objectStore.createIndex('price', 'price', { unique: false });
+    };
+}
+
+function saveCart() {
+    const transaction = db.transaction(['cart'], 'readwrite');
+    const objectStore = transaction.objectStore('cart');
+
+    objectStore.clear();
+
+    cart.forEach(item => {
+        objectStore.add(item);
+    });
+}
+
+function loadCart() {
+    const transaction = db.transaction(['cart'], 'readonly');
+    const objectStore = transaction.objectStore('cart');
+    const request = objectStore.getAll();
+
+    request.onsuccess = function(event) {
+        cart = event.target.result;
+        total = cart.reduce((sum, item) => sum + item.price, 0);
+        updateCart();
+    };
+}
+
+function addToCart(name, price) {
+    cart.push({ name, price });
+    total += price;
+    if (db) {
+        saveCart();
+    }
+    updateCart();
+}
+
+function removeFromCart(index) {
+    total -= cart[index].price;
+    cart.splice(index, 1);
+    if (db) {
+        saveCart();
+    }
+    updateCart();
+}
+
+// Add to cart buttons (alert عند الإضافة فقط)
+document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', function() {
+        const name = this.getAttribute('data-name');
+        const price = parseFloat(this.getAttribute('data-price'));
+        addToCart(name, price);
+        alert(`${name} has been added to the cart!`);
+    });
+});
+
+function updateCart() {
+    const cartItems = document.getElementById('cart-items');
+    const cartTotal = document.getElementById('cart-total');
+
+    if (cartItems) {
+        cartItems.innerHTML = '';
+        cart.forEach((item, index) => {
+            const itemDiv = document.createElement('div');
+            itemDiv.innerHTML = `${item.name} - $${item.price.toFixed(2)} <button class="remove-item" data-index="${index}">Remove</button>`;
+            cartItems.appendChild(itemDiv);
+        });
+
+        // Add event listeners for remove buttons
+        document.querySelectorAll('.remove-item').forEach(button => {
+            button.addEventListener('click', function() {
+                const index = parseInt(this.getAttribute('data-index'));
+                removeFromCart(index);
+            });
+        });
+    }
+
+    if (cartTotal) {
+        cartTotal.textContent = `Total: $${total.toFixed(2)}`;
+    }
+}
+
+// Checkout button (بدون alert)
+const checkoutBtn = document.getElementById('checkout');
+if (checkoutBtn) {
+    checkoutBtn.addEventListener('click', function() {
+        if (cart.length === 0) {
+            console.log('Cart is empty');
+        } else {
+            console.log(`Total: $${total.toFixed(2)} | Payment: Cash or card on delivery`);
+        }
+    });
+}
+
+// Clear cart button (بدون alert)
+const clearCartBtn = document.getElementById('clear-cart');
+if (clearCartBtn) {
+    clearCartBtn.addEventListener('click', function() {
+        cart = [];
+        total = 0;
+        if (db) {
+            saveCart();
+        }
+        updateCart();
+    });
+}
+
+// Initialize database
+initDB();
+
+// Product hover details
+document.querySelectorAll('.menu-item').forEach(item => {
+    item.addEventListener('mouseenter', function() {
+        const name = this.querySelector('h4').textContent;
+        const desc = this.querySelector('p').textContent;
+        const price = this.querySelector('.price').textContent;
+
+        const tooltip = document.createElement('div');
+        tooltip.className = 'tooltip';
+        tooltip.innerHTML = `<strong>${name}</strong><br>${desc}<br><em>${price}</em>`;
+        this.appendChild(tooltip);
+    });
+
+    item.addEventListener('mouseleave', function() {
+        const tooltip = this.querySelector('.tooltip');
+        if (tooltip) {
+            tooltip.remove();
+        }
+    });
+});
